@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<manifest
+		package="edu.hogwarts.siesta.boggle"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+	<application android:icon="@drawable/icon">
+		<activity android:name=".Boggle"
+				android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+	</application>
+</manifest>
