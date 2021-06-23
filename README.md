@@ -1,1 +1,1 @@
-# JAndroidBoggle
+# JAndroidTextTwist
