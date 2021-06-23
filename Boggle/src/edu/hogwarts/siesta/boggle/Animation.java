@@ -88,8 +88,28 @@ public class Animation extends View {
 	Bitmap se_arrow;
 	Bitmap sw_arrow;
 
+	Bitmap list_button_up;
+	Bitmap close_button_up;
+
+	Bitmap list_button_down;
+	Bitmap close_button_down;
+
+	boolean isListButtonDown;
+
 	Box[] boxes;
 	Ball[] balls;
+
+	Button listButton;
+
+	long startTime=0;
+	long elapsedTime=0;
+	long remainingTime=0;
+	long allottedTime=0;
+	long remainingSecs=0;
+	long prevRemainingSecs=0;
+
+	int score=0;
+	int highscore=0;
 
 
 
@@ -116,11 +136,17 @@ public class Animation extends View {
 		se_arrow=BitmapFactory.decodeResource(context.getResources(),R.drawable.se_arrow);
 		sw_arrow=BitmapFactory.decodeResource(context.getResources(),R.drawable.sw_arrow);
 
+		list_button_up=BitmapFactory.decodeResource(context.getResources(),R.drawable.list_button_up);
+		close_button_up=BitmapFactory.decodeResource(context.getResources(),R.drawable.close_button_up);
+
+		list_button_down=BitmapFactory.decodeResource(context.getResources(),R.drawable.list_button_down);
+		close_button_down=BitmapFactory.decodeResource(context.getResources(),R.drawable.close_button_down);
+
+		isListButtonDown=false;
 
 		Ball.font=font;
 		Ball.bitmap=big_ball;
 		Box.bitmap=big_box;
-
 
 		gameState=GameState.GAME_INIT;
 	}
@@ -136,13 +162,11 @@ public class Animation extends View {
 
 		if(gameState==GameState.GAME_INIT) {
 
-			gameover=false;
-
 			offsetX=(canvas.getWidth()-SCREEN_WIDTH)/2;
 			offsetY=(canvas.getHeight()-SCREEN_HEIGHT)/2;
 
 			offsetBoardX=128+offsetX;
-			offsetBoardY=256+offsetX;
+			offsetBoardY=256+16+offsetX+32+16;
 
 			shuffleDice();
 
@@ -182,10 +206,30 @@ public class Animation extends View {
 				}
 			}
 
+
+			int x=offsetX+SCREEN_WIDTH-8*16-4;
+			int y=offsetY+SCREEN_HEIGHT-8*16-4;
+
+			listButton=new Button(list_button_up,list_button_down,x,y,8);
+
+			startTime=System.currentTimeMillis();
+			elapsedTime=0;
+			remainingTime=0;
+			allottedTime=3*60*1000;
+
+			gameover=false;
+
 			gameState=GameState.GAME_PLAY;
 
 		}
 
+
+
+		if(!gameover) {
+			elapsedTime=System.currentTimeMillis()-startTime;
+			remainingTime=allottedTime-elapsedTime;
+			if(remainingTime<0) remainingTime=0;
+		}
 
 
 
@@ -199,7 +243,6 @@ public class Animation extends View {
 
 
 
-
 		if(gameState==GameState.GAME_PLAY) {
 
 
@@ -207,7 +250,7 @@ public class Animation extends View {
 			int k=0;
 
 /*
-			for(int j=0;j<BOARD_HEIGHT;j++) {
+[			for(int j=0;j<BOARD_HEIGHT;j++) {
 				for(int i=0;i<BOARD_WIDTH;i++) {
 					int size=8;
 					int charWidth=8;
@@ -250,9 +293,27 @@ public class Animation extends View {
 				}
 			}
 
+			listButton.draw(canvas);
+
+			isListButtonDown=listButton.update(canvas,touchX,touchY,touchState);
+
+
 		}
 
 
+
+
+
+		Graphics.drawText(canvas,font,8,8,String.format("Hi    %6d",highscore),offsetX,offsetY,8);
+
+		Graphics.drawText(canvas,font,8,8,String.format("Score %6d",score),offsetX,offsetY+1*8*8,8);
+
+		long min=(remainingTime/1000/60);
+		long sec=(remainingTime-min*1000*60)/1000;
+
+		Graphics.drawText(canvas,font,8,8,String.format("Time  %3d:%02d",min,sec),offsetX,offsetY+2*8*8,8);
+
+		Graphics.drawText(canvas,font,8,8,String.format("Words %6s",0+"/"+0),offsetX,offsetY+3*8*8,8);
 
 		invalidate();
 
@@ -286,3 +347,6 @@ public class Animation extends View {
 
 
 }
+
+
+

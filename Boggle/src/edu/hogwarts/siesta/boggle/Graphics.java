@@ -42,12 +42,13 @@ class Graphics {
 	}
 
 	static void drawText(Canvas canvas,Bitmap font,int w,int h,String text,int x,int y,int size) {
-		double posx=x;
-		double posy=y;
+		int posx=x;
+		int posy=y;
 		for(int i=0;i<text.length();i++) {
-			drawChar(canvas,font,w,h,text.charAt(i),(int)posx,(int)posy,size);
+			drawChar(canvas,font,w,h,text.charAt(i),posx,posy,size);
 			posx+=w*size;
-			if(posx>=Animation.SCREEN_WIDTH) {
+			if(posx+w*size>=canvas.getWidth()) {
+				posx=0;
 				posy+=h*size;
 			}
 		}
