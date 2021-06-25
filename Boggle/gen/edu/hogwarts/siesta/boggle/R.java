@@ -40,9 +40,9 @@ public final class R {
         public static final int clock_tick=0x7f030001;
         public static final int complete=0x7f030002;
         public static final int long_word=0x7f030003;
-        public static final int rand=0x7f030004;
-        public static final int slide_letter=0x7f030005;
-        public static final int time_up=0x7f030006;
+        public static final int slide_letter=0x7f030004;
+        public static final int time_up=0x7f030005;
+        public static final int wordlist=0x7f030006;
     }
     public static final class string {
         public static final int app_name=0x7f040000;

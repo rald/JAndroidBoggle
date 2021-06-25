@@ -22,10 +22,11 @@ import android.view.MotionEvent;
 
 // import android.widget.Toast;
 
-//import java.io.BufferedReader;
-//import java.io.InputStream;
-//import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 
@@ -59,9 +60,11 @@ public class Animation extends View {
 
 	static Random random = new Random();
 
+	static Trie dict;
+
 	boolean gameover;
 
-	Context context;
+	static Context context;
 
 	GameState gameState;
 
@@ -71,7 +74,7 @@ public class Animation extends View {
 	int offsetX=0,offsetY=0;
 	int offsetBoardX=0,offsetBoardY=0;
 
-	char[] board;
+	static char[] board;
 
 	Bitmap font;
 
@@ -111,13 +114,17 @@ public class Animation extends View {
 	int score=0;
 	int highscore=0;
 
+	int numGuessed=0;
 
+	static ArrayList<String> words;
+
+	static boolean[] graph;
 
 	public Animation(Context context) {
 
 		super(context);
 
-		this.context=context;
+		Animation.context=context;
 
 		setBackgroundColor(Color.BLACK);
 
@@ -147,6 +154,8 @@ public class Animation extends View {
 		Ball.font=font;
 		Ball.bitmap=big_ball;
 		Box.bitmap=big_box;
+
+		loadDict();
 
 		gameState=GameState.GAME_INIT;
 	}
@@ -206,6 +215,19 @@ public class Animation extends View {
 				}
 			}
 
+
+			words=new ArrayList<String>();
+
+			graph=new boolean[BOARD_WIDTH*BOARD_HEIGHT];
+
+			k=0;
+			for(int j=0;j<BOARD_HEIGHT;j++) {
+				for(int i=0;i<BOARD_WIDTH;i++) {
+					graph[k++]=false;
+				}
+			}
+
+			dfsX();
 
 			int x=offsetX+SCREEN_WIDTH-8*16-4;
 			int y=offsetY+SCREEN_HEIGHT-8*16-4;
@@ -313,7 +335,7 @@ public class Animation extends View {
 
 		Graphics.drawText(canvas,font,8,8,String.format("Time  %3d:%02d",min,sec),offsetX,offsetY+2*8*8,8);
 
-		Graphics.drawText(canvas,font,8,8,String.format("Words %6s",0+"/"+0),offsetX,offsetY+3*8*8,8);
+		Graphics.drawText(canvas,font,8,8,String.format("Words %6s",numGuessed+"/"+words.size()),offsetX,offsetY+3*8*8,8);
 
 		invalidate();
 
@@ -344,6 +366,63 @@ public class Animation extends View {
 		}
 	}
 
+	static void loadDict() {
+		dict=new Trie();
+		try {
+			InputStream is=context.getResources().openRawResource(R.raw.wordlist);
+			InputStreamReader isr=new InputStreamReader(is);
+			BufferedReader br=new BufferedReader(isr);
+
+			String line="";
+			while((line=br.readLine())!=null) {
+				dict.addWord(line.trim());
+			}
+			br.close();
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+
+	static void dfs(int x,int y,String w) {
+
+		if(x<0 || x>=BOARD_WIDTH || y<0 || y>=BOARD_HEIGHT) return;
+
+		if(graph[x+y*BOARD_WIDTH]) return;
+
+		graph[x+y*BOARD_WIDTH]=true;
+
+		w+=Character.toString(board[x+y*BOARD_WIDTH]);
+
+		if(dict.findWord(w)) {
+			boolean found=false;
+			for(int i=0;i<words.size();i++) {
+				if(w.toLowerCase().equals(words.get(i).toLowerCase())) {
+					found=true;
+					break;
+				}
+			}
+			if(!found) {
+				words.add(w.toLowerCase());
+			}
+		}
+
+		for(int j=-1;j<=1;j++) {
+			for(int i=-1;i<=1;i++) {
+				if(j!=0 || i!=0) dfs(x+i,y+j,w);
+			}
+		}
+
+		graph[x+y*BOARD_WIDTH]=false;
+	}
+
+	static void dfsX() {
+		for(int j=0;j<BOARD_HEIGHT;j++) {
+			for(int i=0;i<BOARD_WIDTH;i++) {
+				dfs(i,j,"");
+			}
+		}
+	}
 
 
 }
